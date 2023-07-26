@@ -17,6 +17,9 @@
       },
       "api": {
         "amp1": {}
+      },
+      "storage": {
+        "imagesstorage": {}
       }
     }
   }
