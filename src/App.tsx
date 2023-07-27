@@ -37,6 +37,15 @@ const App: React.FC<{ signOut?: any }> = ({ signOut }) => {
     const apiData = await API.graphql({ query: listNotes });
     const data: any = (apiData as any).data; // Typecast to 'any' to access data
     const notesFromAPI: Note[] = data.listNotes.items;
+    await Promise.all(
+      notesFromAPI.map(async (note) => {
+        if (note.image) {
+          const url = await Storage.get(note.name);
+          note.image = url;
+        }
+        return note;
+      })
+    );
     setNotes(notesFromAPI);
   }
 
@@ -52,6 +61,7 @@ const App: React.FC<{ signOut?: any }> = ({ signOut }) => {
       description,
       image,
     };
+    if (!!data.image) await Storage.put(data.name, image);
     await API.graphql({
       query: createNoteMutation,
       variables: { input: data },
@@ -61,9 +71,10 @@ const App: React.FC<{ signOut?: any }> = ({ signOut }) => {
     formRef.current.reset();
   }
 
-  async function deleteNote({ id }: Note) {
+  async function deleteNote({ id, name }: Note) {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes);
+    await Storage.remove(name);
     await API.graphql({
       query: deleteNoteMutation,
       variables: { input: { id } },
@@ -114,12 +125,20 @@ const App: React.FC<{ signOut?: any }> = ({ signOut }) => {
               {note.name}
             </Text>
             <Text as="span">{note.description}</Text>
+            {note.image && (
+              <Image
+                src={note.image}
+                alt={`visual aid for ${note.name}`}
+                style={{ width: 400 }}
+              />
+            )}
             <Button variation="link" onClick={() => deleteNote(note)}>
               Delete note
             </Button>
           </Flex>
         ))}
       </View>
+      <View name="image" as="input" type="file" style={{ alignSelf: 'end' }} />
       <Button onClick={signOut}>Sign Out</Button>
     </View>
   );
