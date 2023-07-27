@@ -107,16 +107,16 @@ const App: React.FC<{ signOut?: any }> = ({ signOut }) => {
             variation="quiet"
             required
           />
-          <Button type="submit" variation="primary">
-            Create Note
-          </Button>
+          <View
+            name="image"
+            as="input"
+            type="file"
+            style={{ alignSelf: 'end' }}
+          />
         </Flex>
-        <View
-          name="image"
-          as="input"
-          type="file"
-          style={{ alignSelf: 'end' }}
-        />
+        <Button type="submit" variation="primary" margin="1rem">
+          Create Note
+        </Button>
       </View>
       <Heading level={2}>Current Notes</Heading>
       <View margin="3rem 0">
